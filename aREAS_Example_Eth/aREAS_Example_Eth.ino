@@ -1,88 +1,103 @@
-/*
-  This a simple example of the aREST Library for Arduino (Uno/Mega/Due/Teensy)
-  using the Ethernet library (for example to be used with the Ethernet shield).
-  See the README file for more details.
+//#include <SPI.h>
+#include <UIPEthernet.h>
 
-  Written in 2014 by Marco Schwartz under a GPL license.
-*/
+#include <aREAS.h>
 
-// Libraries
-#include <SPI.h>
-#include <Ethernet.h>
-#include <aREST.h>
-#include <avr/wdt.h>
-#include <aREAS_hal.h>
+// Enter a MAC address and IP address for your controller below.
+// The IP address will be dependent on your local network:
+byte mac[] = {
+  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
+};
+IPAddress ip(192, 168, 2, 200);
 
 
-// Enter a MAC address for your controller below.
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xFE, 0x40 };
-
-// IP address in case DHCP fails
-IPAddress ip(192,168,2,2);
-
-// Ethernet server
 EthernetServer server(80);
 
-// Create aREST instance
-aREST rest = aREST();
-
-// Variables to be exposed to the API
-int temperature;
-int humidity;
-
-// Declare functions to be exposed to the API
-int ledControl(String command);
-
-void setup(void)
-{
-  // Start Serial
-  Serial.begin(115200);
-
-  // Init variables and expose them to REST API
-  temperature = 24;
-  humidity = 40;
-  rest.variable("temperature",&temperature);
-  rest.variable("humidity",&humidity);
-
-  // Function to be exposed
-  rest.function("led",ledControl);
-
-  // Give name & ID to the device (ID should be 6 characters long)
-  rest.set_id("008");
-  rest.set_name("dapper_drake");
-
-  // Start the Ethernet connection and the server
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    // no point in carrying on, so do nothing forevermore:
-    // try to congifure using IP address instead of DHCP:
-    Ethernet.begin(mac, ip);
+void setup() {
+  // Open serial communications and wait for port to open:
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
   }
+
+
+  // start the Ethernet connection and the server:
+  Ethernet.begin(mac, ip);
   server.begin();
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
+}
 
-  // Start watchdog
-  wdt_enable(WDTO_4S);
+
+void handleParam(String param){
+  const int maxParLen = 32;
+  if (param.substring(0,3)=="ant"){
+    String value = param.substring(4,maxParLen);
+    Serial.println(value);
+    int antNo = aREAS::stringToAntNo(value);
+    aREAS::setOneAnt(antNo);
+  }
+    
+  if (param.substring(0,3)=="mul"){
+    aREAS::Ants ants;
+    String value = param.substring(4,maxParLen);
+    Serial.println(value);
+    aREAS::stringToMulAnt(&ants, value);
+    aREAS::setMulAnt(ants);
+  }
+    
 }
 
 void loop() {
-
   // listen for incoming clients
   EthernetClient client = server.available();
-  rest.handle(client);
-  wdt_reset();
+  if (client) {
+    Serial.println("new client\n\n");
+    // an http request ends with a blank line
+    boolean currentLineIsBlank = true;
+    String param = "";
+    bool isRequest = false;
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-Type: text/plain");
+    client.println(); 
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+        
+        Serial.write(c);
+        // if you've gotten to the end of the line (received a newline
+        // character) and the line is blank, the http request has ended,
+        // so you can send a reply
+        
+        
+        
+        if ((c == ' ')&&(isRequest)) {
+          // send a standard http response header        
+          client.println(param);
+          handleParam(param);
+          break;
+        }
+        
+        if(isRequest){
+          param+=c;
+        }
 
+        if(c == '?'){
+          isRequest = true;
+        }
+
+        if(c=='\n'){
+          client.println("zjebało sie");
+          break;
+        }
+      }
+    
+    }
+    
+    // give the web browser time to receive the data
+    delay(1);
+    // close the connection:
+    client.stop();
+    Serial.println("client disconnected");
+  }
 }
-
-// Custom function accessible by the API
-int ledControl(String command) {
-
-  // Get state from command
-  int state = command.toInt();
-
-  digitalWrite(6,state);
-  return 1;
-
-}
-

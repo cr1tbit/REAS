@@ -1,9 +1,13 @@
-### aREAS - aREST External Antenna Switch
+### aREAS - a REST-API External Antenna Switch
 
 This project aims to create simple and efficient way to control
 antenna switches via TCP/IP network, either via Ethernet cable or WiFi network.
 
-The project is based on aREST library to provide HTTP REST API.
+~~The project is based on aREST library to provide HTTP REST API.~~
+
+_Sadly aREST library doesn't work with the cheapo ethernet sheld from
+aliexpress, so a library compatible with standard ethernet.h is used,
+and only very basic http request handling is supported._ 
 
 What is REST API? It's the way to send request via http protocol, the same
 that's used in your browser adress bar. This video sums it up pretty well:
@@ -11,7 +15,7 @@ https://www.youtube.com/watch?v=7YcW25PHnAA
 
 In order to simplify the hardware part, only two platforms will be served:
 
--Arduino nano (with atmeg328p) + standard Ethernet shield  
+-Arduino nano (with atmeg328p) + cheap aliexpress nano ethernet shield  
 -ESP8266 WiFi-enabled chip with optional I2C I/O Extender for 9+ antennas
 
 The project will implement 3 basic configurations:
