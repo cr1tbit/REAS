@@ -9,6 +9,7 @@
     #define AREAS_ESP
 #endif
 
+#define AREAS_MOCK_ANT //outputs antenna data to serial instead of GPIO
 
 class AntController {
     static const int antCount = MAX_ANT_NO;
@@ -48,7 +49,7 @@ public:
 
     int setSingle(int antNo){
         if((antNo>0)&&antNo<antCount){
-            ant[antNo] = true;
+            ant[antNo-1] = true;
             setOutput();
             return 0;
         }
@@ -59,7 +60,7 @@ public:
     
     int unsetSingle(int antNo){
         if((antNo>0)&&antNo<antCount){
-            ant[antNo] = false;
+            ant[antNo-1] = false;
             setOutput();
             return 0;
         }
@@ -87,6 +88,8 @@ public:
         return 0;
     }
 
+    #ifdef AREAS_MOCK_ANT
+
     int setOutput(){
         Serial.print("setting ant values:");
         for(int i=0;i<antCount;i++){
@@ -96,5 +99,7 @@ public:
         Serial.println(" EOL");
         return 0;
     }
+
+    #endif
 };
 
