@@ -36,7 +36,5 @@ void setup() {
 void loop() {
   // listen for incoming clients
   EthernetClient client = server.available();
-
   if(client) aHandler.handleClient(client);
-  
 }

@@ -52,30 +52,34 @@ class aREAS_Handler{
                 
                 
                 if ((c == ' ')&&(isRequest)) {
-                // send a standard http response header        
-                client.println(param);
-                handleParam(param);
-                break;
+                    // send a standard http response header        
+                    client.println(param);
+                    handleParam(param);
+                    break;
                 }
                 
                 if(isRequest){
-                param+=c;
+                    param+=c;
                 }
 
                 if(c == '?'){
-                isRequest = true;
+                    isRequest = true;
                 }
 
                 if(c=='\n'){
-                client.println("zjebało sie");
-                break;
+                    client.println("zjebało sie");
+                    break;
                 }
             }
         }
+        client.stop();
+        Serial.println("EOT");
     }
 
     int handleParam(String param){
         const int maxParLen = 32;
+        Serial.print("param substring:");
+        Serial.println(param.substring(0,3));
         if (param.substring(0,3)=="ant"){
             String value = param.substring(4,maxParLen);
             Serial.print("ant param: ");

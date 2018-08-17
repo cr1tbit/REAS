@@ -78,7 +78,7 @@ public:
         if (paramCount > antCount)
             paramCount = antCount;
         for (int i = 0; i< paramCount; i++){
-            if (params.charAt(i) == 1)
+            if (params.charAt(i) == '1')
                 ant[i] = true;
             else
                 ant[i] = false;
@@ -88,6 +88,12 @@ public:
     }
 
     int setOutput(){
+        Serial.print("setting ant values:");
+        for(int i=0;i<antCount;i++){
+            Serial.print(ant[i]);
+            Serial.print(" ");
+        }
+        Serial.println(" EOL");
         return 0;
     }
 };
