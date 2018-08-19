@@ -40,13 +40,21 @@ class aREAS_Handler{
         boolean currentLineIsBlank = true;
         String param = "";
         bool isRequest = false;
+
+        int charCounter = 0;
+        const int charCounterMax = 64;//max request length
         client.println("HTTP/1.1 200 OK");
         client.println("Content-Type: text/plain");
         client.println(); 
         while (client.connected()) {
             if (client.available()) {
                 char c = client.read();
-                
+                if (charCounter++ > charCounterMax){
+                    client.print("Request too long (over ");
+                    client.print(charCounterMax);
+                    client.println("characters)");
+                    break;
+                }
                 Serial.write(c);
                 // if you've gotten to the end of the line (received a newline
                 // character) and the line is blank, the http request has ended,
@@ -70,7 +78,8 @@ class aREAS_Handler{
                 }
 
                 if(c=='\n'){
-                    client.println("zjebało sie");
+                    client.println("Request not valid (no '?' found)\n"
+                                    "valid syntax: <IPADDR>/?fun=parameters");
                     break;
                 }
             }
