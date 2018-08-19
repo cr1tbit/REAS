@@ -65,7 +65,12 @@ class aREAS_Handler{
                 if ((c == ' ')&&(isRequest)) {
                     // send a standard http response header        
                     client.println(param);
-                    handleParam(param);
+                    if(handleParam(param)==0){
+                        client.println("param OK");
+                    }
+                    else{
+                        client.println("invalid param");
+                    }
                     break;
                 }
                 
