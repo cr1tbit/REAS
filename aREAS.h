@@ -1,6 +1,9 @@
 #include <UIPEthernet.h>
 #include <antController.h>
 
+#ifndef AREAS_LIB
+#define AREAS_LIB
+
 /*
 //int randomSeed;//for random MAC generation
 //TODO: ranomizing MAC address
@@ -95,3 +98,5 @@ class aREAS_Handler{
         }        
     }
 };
+
+#endif //AREAS_LIB

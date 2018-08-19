@@ -1,4 +1,5 @@
-#include <aREST.h>
+#ifndef AREAS_ANT_CTRL
+#define AREAS_ANT_CTRL
 
 
 #define MAX_ANT_NO 16
@@ -31,12 +32,14 @@ public:
     }
 
     int setExclusive(int antNo){
-        if((antNo>0)&&antNo<antCount){
+        //ant={1;(antCount)}:
+        if((antNo>0)&&antNo<=antCount){
             setAllOff();
-            ant[antNo] = true;
+            ant[antNo-1] = true;
             setOutput();
             return 0;
         }
+        //ant = 0 or sth weird - ignore
         else{
             return -1;
         }
@@ -103,3 +106,4 @@ public:
     #endif
 };
 
+#endif //AREAS_ANT_CTRL
