@@ -1,3 +1,5 @@
+#include <simpleSlowSerial.h>
+
 #ifndef AREAS_ANT_CTRL
 #define AREAS_ANT_CTRL
 
@@ -10,31 +12,37 @@
     #define AREAS_ESP
 #endif
 
-#define AREAS_MOCK_ANT //outputs antenna data to serial instead of GPIO
+#define AREAS_OUTPUT_DEBUG //every output change is logged to serial output
+#define AREAS_OUTPUT_UART50HZ //output is sent via slow UART port
 
 class AntController {
     static const int antCount = MAX_ANT_NO;
 
     bool ant[antCount];
     bool _enableFlag;
-
+    SSSerial serial50hz;
 public:
 
-    AntController(){
+    AntController():serial50hz(3){
         setAllOff();
+        serial50hz.begin(50);
+    }
+
+    void clearAnt(){
+    for (int i=0;i<antCount;i++){
+        ant[i] = false;
+    }
     }
 
     void setAllOff(){
-        for (int i=0;i<antCount;i++){
-            ant[i] = false;
-        }
+        clearAnt();    
         setOutput();
     }
 
     int setExclusive(int antNo){
         //ant={1;(antCount)}:
         if((antNo>0)&&antNo<=antCount){
-            setAllOff();
+            clearAnt();
             ant[antNo-1] = true;
             setOutput();
             return 0;
@@ -91,19 +99,31 @@ public:
         return 0;
     }
 
-    #ifdef AREAS_MOCK_ANT
+    
 
     int setOutput(){
+        
+        uint8_t bitOut = 0;
+        uint8_t bitMask = 1;
+        for(int i=0;i<8;i++){
+            if(ant[i]){
+                bitOut |= bitMask;
+            }
+            bitMask >>= 1;
+        }
+        serial50hz.send((char)0b01011010);
+        #ifdef AREAS_OUTPUT_DEBUG
         Serial.print("setting ant values:");
         for(int i=0;i<antCount;i++){
             Serial.print(ant[i]);
             Serial.print(" ");
         }
-        Serial.println(" EOL");
+        Serial.println("EOL");
+         #endif //AREAS_OUTPUT_DEBUG
         return 0;
     }
 
-    #endif
+   
 };
 
 #endif //AREAS_ANT_CTRL

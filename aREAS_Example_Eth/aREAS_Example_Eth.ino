@@ -7,6 +7,8 @@
 // The IP address will be dependent on your local network:
 
 
+
+
 char mac[] = {
     0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
@@ -17,6 +19,8 @@ EthernetServer server(80);
 
 AntController antController;
 
+
+
 aREAS_Handler aHandler(&antController);
 void setup() {
   // Open serial communications and wait for port to open:
@@ -24,7 +28,6 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-
 
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);
