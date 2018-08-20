@@ -29,9 +29,9 @@ class SSSerial{
             for(int i=0;i<queueSize;i++){
                 queue[i] = '\0';
             }
-            bitPointer = 0b10000000;
+            bitPointer = 0b00000001;
             startBitFlag = false;
-            endBitFlag = false;
+            endBitFlag = true; //it's changed back to false in _interrupt()
         }
 
         void shiftQueue(){
@@ -100,10 +100,13 @@ public:
     }
 
     void send(char c){
-        if(beginFlag){
-            clearQueue();
-            queue[0] = c;
+        if (c != '\0'){
+            if(beginFlag){
+                clearQueue();
+                queue[0] = c;
+            }
         }
+        
     }
 
     /** sending short string not implemented yet. **/
@@ -135,6 +138,8 @@ public:
                 //if start bit wasn't sent yet
                 if (startBitFlag == false){
                     startBitFlag = true;
+                    //set endBit flag to false
+                    endBitFlag = false;
                     #ifdef START_STOP_BIT_1DOT5
                     timeCounter += (timePeriod>>1);
                     #endif
@@ -146,11 +151,11 @@ public:
                     digitalWrite(outputPin,
                         queue[0] & bitPointer);
                     //shift bitMask
-                    bitPointer >>= 1;
+                    bitPointer <<= 1;
                     //when bit pointer is shifted to '0'
                     if (bitPointer == 0x00){
                         //reset bitPointer
-                        bitPointer = 0b10000000;
+                        bitPointer = 0b00000001;
                         //load new char to queue
                         shiftQueue();
                     }
