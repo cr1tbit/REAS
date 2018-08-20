@@ -4,7 +4,7 @@
 #define AREAS_SSSERIAL
 
 #define START_STOP_BIT_1DOT5 //enable 1.5 start and stop bit
-
+#define AREAS_SSSERIAL_BITGAP //1/4 gap between bits
 
 
 class SSSerial;
@@ -13,7 +13,7 @@ SSSerial* _s = nullptr;
 
 class SSSerial{
     uint8_t outputPin;
-    static const int queueSize = 1; 
+    static const int queueSize = 2; 
 
     char queue[queueSize];
 
@@ -119,10 +119,16 @@ public:
 
     /** this function will be called every 1ms **/
     void _interrupt(){
+        #ifdef AREAS_SSSERIAL_BITGAP
+        if(timeCounter == (timePeriod >> 2)){
+            digitalWrite(outputPin,0);
+        }
+        #endif //AREAS_SSSERIAL_BITGAP
         if(timeCounter >0){
             timeCounter--;
         }
         else{
+            //the time has come - send next bit:
             timeCounter = timePeriod;
             //if char isn't empty
             if(queue[0] != '\0'){
@@ -130,12 +136,13 @@ public:
                 if (startBitFlag == false){
                     startBitFlag = true;
                     #ifdef START_STOP_BIT_1DOT5
-                    timeCounter += (timeCounter>>1);
+                    timeCounter += (timePeriod>>1);
                     #endif
                     digitalWrite(outputPin, 1);
                 }
+                //if start bit was already sent:
                 else {
-                    //set output by bit
+                    //set output if current bit exists in char we send
                     digitalWrite(outputPin,
                         queue[0] & bitPointer);
                     //shift bitMask
@@ -149,11 +156,12 @@ public:
                     }
                 } 
             }
+            //if char is empty:
             else{
                 if(endBitFlag == false){
                     endBitFlag = true;
                     #ifdef START_STOP_BIT_1DOT5
-                    timeCounter += (timeCounter>>1);
+                    timeCounter += (timePeriod>>1);
                     #endif
                     digitalWrite(outputPin, 1);
                 }
