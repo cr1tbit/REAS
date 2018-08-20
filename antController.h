@@ -40,7 +40,11 @@ public:
     }
 
     int setExclusive(int antNo){
-        //ant={1;(antCount)}:
+        if(antNo == 0){
+            clearAnt();
+            setOutput();
+            return 0;
+        }
         if((antNo>0)&&antNo<=antCount){
             clearAnt();
             ant[antNo-1] = true;
@@ -59,7 +63,11 @@ public:
     }
 
     int setSingle(int antNo){
-        if((antNo>0)&&antNo<antCount){
+        if(antNo == 0){
+            setOutput();
+            return 0;
+        }
+        else if((antNo>0)&&antNo<antCount){
             ant[antNo-1] = true;
             setOutput();
             return 0;
@@ -99,7 +107,22 @@ public:
         return 0;
     }
 
-    
+    char antToChar(){
+        uint8_t bitmask = 0b00000001;
+        uint8_t c = 0;
+        for(int i=0;i<8;i++){
+            if(ant[i]){
+                c += bitmask;
+            }
+            bitmask <<=1;
+        }
+        if(c == '\0'){
+            return (char)0xFF;
+        }
+        else{
+            return (char)c;
+        }
+    }
 
     int setOutput(){
         
@@ -111,14 +134,17 @@ public:
             }
             bitMask >>= 1;
         }
-        serial50hz.send((char)0b01011010);
+        #ifdef AREAS_OUTPUT_UART50HZ
+            serial50hz.send(antToChar());
+        #endif //AREAS_OUTPUT_UART50HZ
+
         #ifdef AREAS_OUTPUT_DEBUG
-        Serial.print("setting ant values:");
-        for(int i=0;i<antCount;i++){
-            Serial.print(ant[i]);
-            Serial.print(" ");
-        }
-        Serial.println("EOL");
+            Serial.print("setting ant values:");
+            for(int i=0;i<antCount;i++){
+                Serial.print(ant[i]);
+                Serial.print(" ");
+            }
+            Serial.println("EOL");
          #endif //AREAS_OUTPUT_DEBUG
         return 0;
     }

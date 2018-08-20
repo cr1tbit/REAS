@@ -22,7 +22,7 @@ void loop() {
 
 String getWaveformFromChar(char c){
   String out = "~_____===|";
-  uint8_t bitmask = 0b10000000;
+  uint8_t bitmask = 0b00000001;
   for(int i=0;i<8;i++){
     if(c&bitmask){
       out +="==|";
@@ -30,7 +30,7 @@ String getWaveformFromChar(char c){
     else{
       out +="__|";
     }
-    bitmask >>= 1;
+    bitmask <<= 1;
   }
   out +="===_____~";
   return out;
