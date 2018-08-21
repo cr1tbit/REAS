@@ -45,6 +45,7 @@ class aREAS_Handler{
         const int charCounterMax = 64;//max request length
         client.println("HTTP/1.1 200 OK");
         client.println("Content-Type: text/plain");
+        client.println("Access-Control-Allow-Origin: *");
         client.println(); 
         while (client.connected()) {
             if (client.available()) {

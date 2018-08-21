@@ -1,0 +1,149 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>aREAS API tester</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/siimple@3.1.0/dist/siimple.min.css">
+</head>
+
+<body>
+<div style="max-width:900px; margin:0 auto;" >
+    <div class="siimple-box siimple-box--green">
+        <div class="siimple-box-title">aREAS API tester</div>
+        <div class="siimple-box-subtitle">HTTP GET request generator for local devices</div>
+        <div class="siimple-box-detail">
+            <a class="siimple-link" 
+               href="https://github.com/critBit95/aREAS">
+               github.com/critBit95/aREAS
+            </a>
+        </div>
+    </div>
+    <div class="siimple-grid">
+        <div class="siimple-grid-row">
+            <div class="siimple-grid-col siimple-grid-col--8">
+            
+                <div class="siimple-card-header">
+                    <label class="siimple-label">Insert your HTTP GET query:</label>
+                </div>
+                <div class="siimple-card-body">
+                    <form onsubmit="return httpGet()">
+                    <label class="siimple-label">http://</label>
+                    <input type="text" 
+                           class="siimple-input" 
+                           id="ipAddr" 
+                           value="192.168.2.200" 
+                           onchange="reqStrUpdate()"
+                    >
+                    <label class="siimple-label">/?</label>
+                    <input type="text" 
+                           class="siimple-input" 
+                           id="param" 
+                           value="mul=01010101" 
+                           onchange="reqStrUpdate()"
+                    >
+                    <input type="submit"
+                           style="height: 0px; 
+                                  width: 0px; 
+                                  border: none; 
+                                  padding: 0px;" 
+                           hidefocus="true" 
+                           />
+                    </form>                    
+                </div>
+                <div class="siimple-card-footer">
+                    <div class="siimple-btn siimple-btn--orange" 
+                         onload="reqStrUpdate()" 
+                         onclick="httpGet()">
+                         Update
+                    </div>
+                </div>
+                <div class="siimple-grid">
+                    <div class="siimple-grid-col siimple-grid-col--6">
+                        <div class="siimple-card-header">
+                            <label class="siimple-label">choose antenna number:</label>
+                        </div>
+                        <div class="siimple-card-body">
+                            <p class="siimple-p">[TODO] add this</p>
+                        </div>
+                    </div>
+                    <div class="siimple-grid-col siimple-grid-col--6">
+                        <div class="siimple-card-header">
+                            <label class="siimple-label">choose antenna config:</label>
+                        </div>
+                        <div class="siimple-card-body">
+                            <p class="siimple-p">[TODO] add this</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="siimple-grid-col siimple-grid-col--4">
+                <div class="siimple-card-header">
+                    <label class="siimple-label">aREAS driver's response:</label>
+                </div> 
+                <div class="siimple-card-body">
+                    <textarea id="respDisp"class="siimple-textarea" rows="15">
+                        Nothing (yet!)
+                    </textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="siimple-footer siimple-footer" align="center">
+        Made with love using <strong>siimple</strong> - easy, light and fun CSS framework
+    </div>
+</div>
+
+
+<script>
+    var req = "";
+    
+    function reqStrUpdate() {
+        req = "http://" +
+                   document.getElementById('ipAddr').value +
+                  "/?" +
+                  document.getElementById('param').value;
+        console.log("query: " + req);
+    }
+    
+    function updateRespDisp(text){
+        document.getElementById("respDisp").innerHTML = text;
+        console.log(text);
+    }
+    
+    function httpGet()
+    {
+        reqStrUpdate();
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", req, true );
+        xmlHttp.onload = function (e) {
+            if (xmlHttp.readyState === 4) {
+                if (xmlHttp.status === 200) {
+                    updateRespDisp("Response: \n" + xmlHttp.responseText);
+                } 
+                else {
+                    updateRespDisp("Response error: " +xmlHttp.statusText);
+                }
+            }
+        };
+        xmlHttp.timeout = 1000;
+        xmlHttp.ontimeout = function (e) {
+            updateRespDisp("Timeout - is the device connected?");
+        };
+        xmlHttp.onerror = function (e) {
+            updateRespDisp("Error: " + xmlHttp.statusText);
+        };
+        console.log("Starting query...");
+        xmlHttp.send( null );
+        return false;
+    }
+</script>
+</body>
+</html>
+
+
+
