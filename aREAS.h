@@ -26,7 +26,7 @@ class aREAS_Handler{
     public:    
 
 
-    aREAS_Handler():antController(){
+    aREAS_Handler(uint8_t antennaCount):antController(antennaCount){
         volatile int test = 0;
     }
 
@@ -54,12 +54,10 @@ class aREAS_Handler{
                     break;
                 }
                 Serial.write(c);
+
                 // if you've gotten to the end of the line (received a newline
                 // character) and the line is blank, the http request has ended,
                 // so you can send a reply
-                
-                
-                
                 if ((c == ' ')&&(isRequest)) {
                     // send a standard http response header        
                     client.println(param);

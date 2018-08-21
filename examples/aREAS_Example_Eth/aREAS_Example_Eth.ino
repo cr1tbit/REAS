@@ -21,7 +21,7 @@ EthernetServer server(80);
 
 
 
-aREAS_Handler aHandler;
+aREAS_Handler aHandler(16);
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);

@@ -16,20 +16,25 @@
 #define AREAS_OUTPUT_UART50HZ //output is sent via slow UART port
 
 class AntController {
-    static const int antCount = MAX_ANT_NO;
+    int antCount;
+    static const int antMaxCount = MAX_ANT_NO;
 
-    bool ant[antCount];
+    bool ant[antMaxCount];
     bool _enableFlag;
     SSSerial serial50hz;
 public:
 
-    AntController():serial50hz(3){
+    AntController(uint8_t _antCount):serial50hz(3){
+        if (_antCount > antMaxCount){
+            _antCount = antMaxCount;
+        }
+        antCount = _antCount;
         setAllOff();
         serial50hz.begin(50);
     }
 
     void clearAnt(){
-    for (int i=0;i<antCount;i++){
+    for (int i=0;i<antMaxCount;i++){
         ant[i] = false;
     }
     }
@@ -117,6 +122,7 @@ public:
             bitmask <<=1;
         }
         if(c == '\0'){
+            //empty char cannot be send. Send 8x 1's.
             return (char)0xFF;
         }
         else{
@@ -140,7 +146,7 @@ public:
 
         #ifdef AREAS_OUTPUT_DEBUG
             Serial.print("setting ant values:");
-            for(int i=0;i<antCount;i++){
+            for(int i=0;i<antMaxCount;i++){
                 Serial.print(ant[i]);
                 Serial.print(" ");
             }
