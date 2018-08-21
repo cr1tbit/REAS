@@ -20,6 +20,10 @@ In order to simplify the hardware part, only two platforms will be served:
 -Arduino nano (with atmeg328p) + cheap aliexpress nano ethernet shield  
 -[TODO] ESP8266 WiFi-enabled chip with optional I2C I/O Extender for 9+ antennas
 
+In the final version pin functions should look something like this:
+![aREAS_mobo](schematics/Motherboard_schematics.png "aREAS pin functions")
+
+
 ## Implemented API
 What is REST API? It's the way to send request via http protocol, the same
 that's used in your browser adress bar. This video sums it up pretty well:
