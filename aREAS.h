@@ -90,21 +90,35 @@ class aREAS_Handler{
     }
 
     int handleParam(String param){
+        //valid syntax of an param:
+        //  param:XYZ=value...
+        //char no:012345678...
         const int maxParLen = 32;
-        Serial.print("param substring:");
-        Serial.println(param.substring(0,3));
-        if (param.substring(0,3)=="ant"){
-            String value = param.substring(4,maxParLen);
-            Serial.print("ant param: ");
-            Serial.println(value);
-            return antController.setExclusiveFromString(value);
+        const int parNameLen = 3;
+
+        //get "XYZ"
+        String parName = param.substring(0,parNameLen);
+        //check if under 3rd char is "="
+        Serial.print("param name:");
+        Serial.println((String)parName);
+        if(param.charAt(parNameLen) != '='){
+            Serial.println("'equals' not on valid pos");
+            return -1;
+        }
+        //get chars from 4...maxParLen 
+        //(or less, .substring() handles less than max chars)
+        String parVal = param.substring(4,maxParLen);
+        Serial.print("param val: ");
+        Serial.println(parVal);
+
+        if (parName=="ant"){
+            Serial.println("ant called...");
+            return antController.setExclusiveFromString(parVal);
         }
             
-        if (param.substring(0,3)=="mul"){
-            String value = param.substring(4,maxParLen);
-            Serial.print("mul param: ");
-            Serial.println(value);
-            return antController.setMultiFtomString(value);
+        if (parName=="mul"){
+            Serial.println("mul called...");
+            return antController.setMultiFtomString(parVal);
         }        
     }
 };
