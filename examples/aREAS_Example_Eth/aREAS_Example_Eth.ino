@@ -17,11 +17,11 @@ IPAddress ip(192, 168, 2, 200);
 
 EthernetServer server(80);
 
-AntController antController;
+//AntController antController;
 
 
 
-aREAS_Handler aHandler(&antController);
+aREAS_Handler aHandler;
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);

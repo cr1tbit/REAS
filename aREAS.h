@@ -21,18 +21,15 @@ AntController antController;
 */
 class aREAS_Handler{
 
-    AntController* antController;
+    AntController antController;
 
     public:    
 
 
-    aREAS_Handler(){
-        antController = nullptr;
+    aREAS_Handler():antController(){
+        volatile int test = 0;
     }
 
-    aREAS_Handler(AntController* a){
-        antController = a;
-    }
 
     void handleClient(EthernetClient client){
         Serial.println("new client\n\n");
@@ -102,14 +99,14 @@ class aREAS_Handler{
             String value = param.substring(4,maxParLen);
             Serial.print("ant param: ");
             Serial.println(value);
-            return antController->setExclusiveFromString(value);
+            return antController.setExclusiveFromString(value);
         }
             
         if (param.substring(0,3)=="mul"){
             String value = param.substring(4,maxParLen);
             Serial.print("mul param: ");
             Serial.println(value);
-            return antController->setMultiFtomString(value);
+            return antController.setMultiFtomString(value);
         }        
     }
 };
