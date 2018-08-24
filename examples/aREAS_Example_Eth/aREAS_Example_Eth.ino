@@ -19,9 +19,24 @@ EthernetServer server(80);
 
 //AntController antController;
 
-
-
 aREAS_Handler aHandler(16);
+
+/** custom functions **/
+
+int setFilterBankFromString(String s){
+  int fltrNo = s.toInt();
+  if ((fltrNo>0)&&(fltrNo<4)){
+    Serial.print("activating fltr no ");
+    Serial.println(fltrNo);
+  } 
+  else{
+    Serial.print("wrong param ");
+    Serial.println(fltrNo);
+  }
+}
+
+
+
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
@@ -34,6 +49,8 @@ void setup() {
   server.begin();
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
+
+  aHandler.attachCallback("flt", &setFilterBankFromString);
 }
 
 void loop() {

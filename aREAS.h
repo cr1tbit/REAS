@@ -4,6 +4,9 @@
 #ifndef AREAS_LIB
 #define AREAS_LIB
 
+#define AREAS_MAX_PAR_LEN 3
+#define AREAS_MAX_FUN_NO 10
+
 /*
 //int randomSeed;//for random MAC generation
 //TODO: ranomizing MAC address
@@ -19,20 +22,61 @@ AntController antController;
 
 //TODO: DHCP functionality
 */
+
+
+
+
+
+
 class aREAS_Handler{
 
+    typedef struct{
+    String name;
+    int (*fPtr)(String);
+    } simplefunMap;
+    
+    simplefunMap fMap[AREAS_MAX_FUN_NO];
+    public:    
     AntController antController;
 
-    public:    
-
-
     aREAS_Handler(uint8_t antennaCount):antController(antennaCount){
-        volatile int test = 0;
+        clearFunMap();
     }
 
+    int runFunctionFromMap(String name, String param){
+        for(int i=0;i<AREAS_MAX_FUN_NO; i++){
+            if (fMap[i].fPtr != nullptr){
+                if(fMap[i].name = name){
+                    fMap[i].fPtr(param);
+                }
+            }
+        }
+        return -1;
+    }
+
+    void clearFunMap(){
+        for(int i=0;i<AREAS_MAX_FUN_NO; i++){
+            fMap[i].fPtr = nullptr;
+        }
+    }
+
+    int attachCallback(String name, int (*callback)(String)){
+        name = name.substring(0,AREAS_MAX_PAR_LEN);
+        //find empty callback slot
+        for (int i = 0;i<AREAS_MAX_FUN_NO; i++){
+            if(fMap[i].fPtr == nullptr){
+                //attach stuff
+                fMap[i].name = name;
+                fMap[i].fPtr = callback;
+                return 0;
+            }
+        }
+        Serial.println(F("Warning - no emplty callback slots!"));
+        return -1;
+    }
 
     void handleClient(EthernetClient client){
-        Serial.println("new client\n\n");
+        Serial.println(F("new client\n\n"));
         // an http request ends with a blank line
         boolean currentLineIsBlank = true;
         String param = "";
@@ -40,17 +84,17 @@ class aREAS_Handler{
 
         int charCounter = 0;
         const int charCounterMax = 64;//max request length
-        client.println("HTTP/1.1 200 OK");
-        client.println("Content-Type: text/plain");
-        client.println("Access-Control-Allow-Origin: *");
+        client.println(F("HTTP/1.1 200 OK"));
+        client.println(F("Content-Type: text/plain"));
+        client.println(F("Access-Control-Allow-Origin: *"));
         client.println(); 
         while (client.connected()) {
             if (client.available()) {
                 char c = client.read();
                 if (charCounter++ > charCounterMax){
-                    client.print("Request too long (over ");
+                    client.print(F("Request too long (over "));
                     client.print(charCounterMax);
-                    client.println("characters)");
+                    client.println(F("characters)"));
                     break;
                 }
                 Serial.write(c);
@@ -62,10 +106,10 @@ class aREAS_Handler{
                     // send a standard http response header        
                     client.println(param);
                     if(handleParam(param)==0){
-                        client.println("param OK");
+                        client.println(F("param OK"));
                     }
                     else{
-                        client.println("invalid param");
+                        client.println(F("invalid param"));
                     }
                     break;
                 }
@@ -79,8 +123,8 @@ class aREAS_Handler{
                 }
 
                 if(c=='\n'){
-                    client.println("Request not valid (no '?' found)\n"
-                                    "valid syntax: <IPADDR>/?fun=parameters");
+                    //client.println("Request not valid (no '?' found)\n"
+                    //                "valid syntax: <IPADDR>/?fun=parameters");
                     break;
                 }
             }
@@ -94,32 +138,42 @@ class aREAS_Handler{
         //  param:XYZ=value...
         //char no:012345678...
         const int maxParLen = 32;
-        const int parNameLen = 3;
+        const int parNameLen = AREAS_MAX_PAR_LEN;
 
         //get "XYZ"
         String parName = param.substring(0,parNameLen);
+        
+        Serial.print(F("param name:"));
+        Serial.println(parName);
         //check if under 3rd char is "="
-        Serial.print("param name:");
-        Serial.println((String)parName);
-        if(param.charAt(parNameLen) != '='){
-            Serial.println("'equals' not on valid pos");
+        /*if(param.charAt(parNameLen) != '='){
+            Serial.println(F("'equals' not on valid pos"));
             return -1;
-        }
+        }*/
         //get chars from 4...maxParLen 
         //(or less, .substring() handles less than max chars)
         String parVal = param.substring(4,maxParLen);
-        Serial.print("param val: ");
+        Serial.print(F("param val: "));
         Serial.println(parVal);
 
+        //try methods embedded in aREAS object:
+        if (parName=="sta"){
+            Serial.println(F("status OK."));
+            return 0;
+        }
+
         if (parName=="ant"){
-            Serial.println("ant called...");
+            Serial.println(F("ant called..."));
             return antController.setExclusiveFromString(parVal);
         }
             
         if (parName=="mul"){
-            Serial.println("mul called...");
+            Serial.println(F("mul called..."));
             return antController.setMultiFtomString(parVal);
-        }        
+        }
+        //try to find function in function pointer array
+        return runFunctionFromMap(parName,parVal);
+
     }
 };
 

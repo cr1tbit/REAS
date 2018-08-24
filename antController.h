@@ -145,7 +145,7 @@ public:
         #endif //AREAS_OUTPUT_UART50HZ
 
         #ifdef AREAS_OUTPUT_DEBUG
-            Serial.print("setting ant values:");
+            Serial.print(F("setting ant values:"));
             for(int i=0;i<antMaxCount;i++){
                 Serial.print(ant[i]);
                 Serial.print(" ");
