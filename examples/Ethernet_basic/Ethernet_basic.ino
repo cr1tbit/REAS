@@ -1,40 +1,26 @@
-//#include <SPI.h>
-#include <UIPEthernet.h>
 
+/**
+ * Basic example of the aREAS library:
+ * 1.initialize aREAS_Handler with (16)
+ * 2.enjoy control over 16 antenna outputs
+ *    via ethernet.
+ */
+
+
+#include <UIPEthernet.h>
 #include <aREAS.h>
 
-// Enter a MAC address and IP address for your controller below.
-// The IP address will be dependent on your local network:
-
-
-
-
+/** You might want to give unique MAC to every
+ * aREAS controller in the network */
 char mac[] = {
-    0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
+    0xDD, 0xDD, 0xDD, 0xDD, 0x15, 0x25
 };
 //TODO: setting up custom IP address
 IPAddress ip(192, 168, 2, 200);
 
 EthernetServer server(80);
 
-//AntController antController;
-
 aREAS_Handler aHandler(16);
-
-/** custom functions **/
-
-int setFilterBankFromString(String s){
-  int fltrNo = s.toInt();
-  if ((fltrNo>0)&&(fltrNo<4)){
-    Serial.print("activating fltr no ");
-    Serial.println(fltrNo);
-  } 
-  else{
-    Serial.print("wrong param ");
-    Serial.println(fltrNo);
-  }
-}
-
 
 
 void setup() {
@@ -49,8 +35,6 @@ void setup() {
   server.begin();
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
-
-  aHandler.attachCallback("flt", &setFilterBankFromString);
 }
 
 void loop() {

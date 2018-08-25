@@ -46,8 +46,9 @@ class aREAS_Handler{
     int runFunctionFromMap(String name, String param){
         for(int i=0;i<AREAS_MAX_FUN_NO; i++){
             if (fMap[i].fPtr != nullptr){
-                if(fMap[i].name = name){
+                if(fMap[i].name == name){
                     fMap[i].fPtr(param);
+                    return 0;
                 }
             }
         }
