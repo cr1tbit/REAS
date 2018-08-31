@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/siimple@3.1.0/dist/siimple.min.css">
 </head>
 
-<body>
+<body onload="appStart()" onunload="appClose()">
 <div style="max-width:900px; margin:0 auto;" >
     <div class="siimple-box siimple-box--green">
         <div class="siimple-box-title">aREAS API tester</div>
@@ -25,16 +25,18 @@
     </div>
     <div class="siimple-grid">
         <div class="siimple-grid-row">
+            <!-- Left part of the window-->
             <div class="siimple-grid-col siimple-grid-col--8">
-            
+                <!-- HTML of the manual query window-->
                 <div class="siimple-card-header">
                     <label class="siimple-label">Insert your HTTP GET query:</label>
                 </div>
                 <div class="siimple-card-body">
-                    <form onsubmit="return httpGet()">
+                    <form onsubmit="return httpGetFromReq()">
                     <label class="siimple-label">http://</label>
                     <input type="text" 
-                           class="siimple-input" 
+                           class="siimple-input"
+                           size="10" 
                            id="ipAddr" 
                            value="192.168.2.200" 
                            onchange="reqStrUpdate()"
@@ -58,89 +60,388 @@
                 <div class="siimple-card-footer">
                     <div class="siimple-btn siimple-btn--orange" 
                          onload="reqStrUpdate()" 
-                         onclick="httpGet()">
-                         Update
+                         onclick="httpGetFromReq()">
+                         Send!
                     </div>
                 </div>
-                <div class="siimple-grid">
-                    <div class="siimple-grid-col siimple-grid-col--6">
-                        <div class="siimple-card-header">
-                            <label class="siimple-label">choose antenna number:</label>
-                        </div>
-                        <div class="siimple-card-body">
-                            <p class="siimple-p">[TODO] add this</p>
-                        </div>
-                    </div>
-                    <div class="siimple-grid-col siimple-grid-col--6">
-                        <div class="siimple-card-header">
-                            <label class="siimple-label">choose antenna config:</label>
-                        </div>
-                        <div class="siimple-card-body">
-                            <p class="siimple-p">[TODO] add this</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="siimple-grid-col siimple-grid-col--4">
+                <br>
                 <div class="siimple-card-header">
-                    <label class="siimple-label">aREAS driver's response:</label>
+                    <label class="siimple-label">Recent query:</label>
+                </div>
+                <div class="siimple-card-body">
+                    <textarea readonly id="queryDisp" class="siimple-textarea" rows="2" style="width:96%">
+No query performed
+                    </textarea>
+                </div>
+                <div class="siimple-card-footer">       
+                </div>
+                <br>
+                <!-- Device response window-->
+                <div class="siimple-card-header">
+                    <label class="siimple-label">aREAS' recent response:</label>
                 </div> 
                 <div class="siimple-card-body">
-                    <textarea id="respDisp"class="siimple-textarea" rows="15">
-                        Nothing (yet!)
+                    <textarea readonly id="respDisp" class="siimple-textarea" rows="5" style="width:96%">
+Nothing (yet!)
                     </textarea>
+                </div>
+            </div>
+            <!-- HTML of the antenna control panel-->
+            <div class="siimple-grid-col siimple-grid-col--4">
+                <div class="siimple-card-header">
+                        <label class="siimple-label">
+                            aREAS Device status:
+                            <span id="deviceStatusTag" class="siimple-tag siimple-tag--dark siimple-tag--rounded">Unknown</span>
+                        </label>
+                    </div>
+                    <!-- Antenna switch list, populated by JS-->
+                    <div class="siimple-card-body">
+                        <div id="antennaList" class="siimple-list siimple-list--hover">
+                                This webapp works only with JavaScript enabled. 
+                                Please check your settings.
+                            </div>
+                    </div>
+                    <!-- Antenna switch list, populated by JS-->
+                    <div class="siimple-card-footer">
+                        <label class="siimple-label">Exclusive antena mode:</label>
+                        <div class="siimple-checkbox">
+                            <input type="checkbox" id="singleAntModeBox" onChange="setSingleAntennaMode()" checked>
+                            <label for="singleAntModeBox"></label>
+                        </div>
+                        <label class="siimple-label">Update status every 5s:</label>
+                        <div class="siimple-checkbox">
+                            <input type="checkbox" id="updateModeSwitch" checked>
+                            <label for="updateModeSwitch"></label>
+                        </div>
+                        <div id="toggleSetupModeBut" class="siimple-btn siimple-btn--orange" 
+                            onclick="toggleSetupMode()">
+                            Enter setup mode
+                        </div>
+                    </div>
+                    <br>
+                    <div id="localStorageConsentWindow" class="siimple-alert siimple-alert--warning">
+                        Are you okay with storing some antenna config in your browser? [TODO: PREVENT REAPPEARING ON CONSENT]
+                        <br>
+                        <div class="siimple-btn siimple-btn--warning"
+                            onclick="enableLocalStorage()">
+                            I consent.
+                        </div>
+                        <div class="siimple-btn siimple-btn--error" 
+                            onclick="disableLocalStorage()">
+                            I do not.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="siimple-footer siimple-footer" align="center">
-        Made with love using <strong>siimple</strong> - easy, light and fun CSS framework
+        Made with love using <strong>siimple</strong> - easy, lightweight and fun CSS framework
     </div>
 </div>
 
 
 <script>
+    /** global variables **/
     var req = "";
+    var setupMode = false;
+    var jsonConfig = {};
+
+    /** webapp start and finish **/
+
+    function appStart(){
+        loadSettingsFromLocalStorage();
+        drawAntennaList();
+        document.getElementById("ipAddr").value = jsonConfig.deviceIP;
+    }
+
+    function appClose(){
+        saveSettingsOnLocalStorage()
+    }
+
+    /** Local Storage functionality **/
+
+    function enableLocalStorage(){
+        jsonConfig.localStorageEnabled = true;
+        document.getElementById('localStorageConsentWindow').style.display = "none";
+    }
+
+    function disableLocalStorage(){
+        jsonConfig.localStorageEnabled = false; 
+        localStorage.clear();
+        document.getElementById('localStorageConsentWindow').style.display = "none";
+    }
+
+    function loadSettingsFromLocalStorage(){
+        if (typeof(Storage) !== "undefined") {
+            console.log("Loading local storage...")
+            if (localStorage.getItem('jsonConfigText') == null ){
+                jsonConfig = getDefaultJsonConfig();
+                console.log("Default json generated.")
+            }
+            else{
+                jsonConfig = JSON.parse(localStorage.getItem('jsonConfigText'));
+                console.log("Json loade from local storage")
+            }
+        } else {
+            console.log("local storage not supported.")
+        }
+        console.log("Json config loaded:\n" + JSON.stringify(jsonConfig,null,2));
+    }
     
+    function saveSettingsOnLocalStorage(){
+        if(jsonConfig.localStorageEnabled == true){
+            localStorage.setItem('jsonConfigText',JSON.stringify(jsonConfig,null,2))
+            console.log('saving data on local storage...');
+        }
+        else{
+            console.log('local storage disabled.')
+        }
+    }
+
+    function getDefaultJsonConfig(){
+        var defaultJsonConfig = {
+            deviceIP : "192.168.2.100",
+            localStorageEnabled : false,
+            singleAntenna : true,
+            autoUpdate : false,
+            antennaCount : 8,
+            antenna : []
+        }
+        for(var i = 0;i<defaultJsonConfig["antennaCount"];i++){
+            defaultJsonConfig.antenna[i] = {
+                name : "Ant " + (i+1),
+                state : "off",
+                remoteState : "??"
+            }
+        }
+        //console.log(JSON.stringify(defaultJsonconfig,null,2));
+        return defaultJsonConfig;
+    }
+
+    /** local Json Config operations **/
+
+    function setAntName(antNo){
+        if (jsonConfig.antenna[antNo] != null){
+            jsonConfig.antenna[antNo].name = 
+                document.getElementById("antListName"+antNo).value; 
+        }
+    }
+
+    function toggleAntenna(antNo){
+        if(jsonConfig.singleAntenna == true){
+            setAntennasOff()
+        }
+        if(antNo<0||antNo>jsonConfig.antennaCount){
+            setAntennasOff()
+        }
+        else if (jsonConfig.antenna[antNo].state == "off"){
+            jsonConfig.antenna[antNo].state = "on"
+        }
+        else if (jsonConfig.antenna[antNo].state == "on"){
+            jsonConfig.antenna[antNo].state = "off"
+        }
+        drawAntennaList();
+        httpGet(getApiRequestFromJsonConfig());
+    }
+
+    function setAntennasOff(){
+        for (i in jsonConfig.antenna){
+            jsonConfig.antenna[i].state = "off"
+        }
+    }
+
+    function setSingleAntennaMode(){
+        jsonConfig.singleAntenna = document.getElementById("singleAntModeBox").checked;
+        drawAntennaList();
+    }
+
+    /** Local area network and aREAS API functionality **/
+
+    function getApiRequestFromJsonConfig(){
+        var request = "http://"+
+                document.getElementById('ipAddr').value +
+                "/?mul=";
+        for (i in jsonConfig.antenna){
+            if(jsonConfig.antenna[i].state == "on"){
+                request+="1";
+            }
+            else{
+                request+="0";
+            }
+        }
+        return request
+    }
+
     function reqStrUpdate() {
         req = "http://" +
                    document.getElementById('ipAddr').value +
                   "/?" +
                   document.getElementById('param').value;
+        updateQueryDisp()
         console.log("query: " + req);
     }
     
-    function updateRespDisp(text){
-        document.getElementById("respDisp").innerHTML = text;
-        console.log(text);
+    function setAntennaCount(){
+        var antNo = document.getElementById("antSetupCount").value
+        if (antNo>0||antNo<16){
+            jsonConfig.antennaCount=antNo;
+        }
     }
     
-    function httpGet()
-    {
+    function httpGetFromReq(){
         reqStrUpdate();
+        httpGet(req);
+    }
+
+    function httpGet(param)
+    {
+        updateRespDisp("Waiting for response...");
+        document.getElementById("queryDisp").innerHTML = param;
         var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open( "GET", req, true );
+        xmlHttp.open( "GET", param, true );
         xmlHttp.onload = function (e) {
             if (xmlHttp.readyState === 4) {
                 if (xmlHttp.status === 200) {
                     updateRespDisp("Response: \n" + xmlHttp.responseText);
+                    drawDeviceStatus("Online");
                 } 
                 else {
                     updateRespDisp("Response error: " +xmlHttp.statusText);
+                    drawDeviceStatus("Error");
                 }
             }
         };
         xmlHttp.timeout = 1000;
         xmlHttp.ontimeout = function (e) {
-            updateRespDisp("Timeout - is the device connected?");
+            updateRespDisp("Timeout after 1000ms. Is the device turned on and connected to the network?");
+            drawDeviceStatus("Offline");
         };
         xmlHttp.onerror = function (e) {
             updateRespDisp("Error: " + xmlHttp.statusText);
+            drawDeviceStatus("Error");
         };
         console.log("Starting query...");
         xmlHttp.send( null );
         return false;
     }
+
+
+    /** Rendering HTML section **/
+    
+    function toggleSetupMode(){
+        if (setupMode == true){
+            setupMode = false;
+            document.getElementById("toggleSetupModeBut").innerHTML = "Enter setup mode"
+        }
+        else {
+            setupMode = true;
+            document.getElementById("toggleSetupModeBut").innerHTML = "Leave setup mode"
+        }
+        drawAntennaList();
+    }
+
+    function updateRespDisp(text){
+        document.getElementById("respDisp").innerHTML = text;
+        console.log(text);
+    }
+
+    function updateQueryDisp(text){
+        document.getElementById("queryDisp").innerHTML = text;
+    }    
+
+    function drawDeviceStatus(statusText){
+        var statusColor;
+        switch (statusText){
+            case "Online":
+                statusColor = "success";
+                break;
+            case "Offline":
+                statusColor = "dark"
+                break;
+            case "Error":
+                statusColor = "error"
+                break;
+            default:
+                statusText = "Unknown";
+                statusColor = "light";
+                break;
+        }
+        document.getElementById("deviceStatusTag").innerHTML = statusText;
+        document.getElementById("deviceStatusTag").className = "siimple-tag siimple-tag--" + statusColor + " siimple-tag--rounded";
+    }
+                    
+    function drawAntennaList(){
+        var htmlText = "";
+        if (setupMode) htmlText += "<h3>SETUP MODE</h3>";
+        for(var i=0;i<jsonConfig.antennaCount;i++){
+            var listItemText = "";
+            var statusColor;
+            var statusText;
+
+            
+
+            /** setup tag name and color from jsonConfig **/
+            if (jsonConfig.antenna[i].state == 'on'){
+                statusColor = "success"
+                statusText = "On"
+            }
+            else if (jsonConfig.antenna[i].state == 'off'){
+                statusColor = "error"
+                statusText = "Off"
+            }
+            else{
+                statusColor = "dark"
+                statusText="??"
+            }
+            
+            var listItemOnClickText = ((setupMode) ? 
+                        "" :
+                         'onClick="toggleAntenna('+ (i) +')"'
+                         );
+            
+            var listItemTextReadonlyText = ((setupMode) ?
+                        "" :
+                        'readonly="true"'
+                        );
+
+            var listItemTextText = ((setupMode) ? 
+                        /** draw input fields **/
+                        '<input type="text" class="siimple-input" size="20"' +
+                        'id="antListName' + i + '" value="' + jsonConfig.antenna[i].name + '" onchange="setAntName(' + (i) + ')">' :
+                        /** draw plain text with names **/
+                        '<div class="siimple-p" style="display: inline-block">' +  jsonConfig.antenna[i].name + '</div>'
+                        );
+
+
+            //addd HTML to string variable
+            listItemText+= '<div class="siimple-list-item"' + listItemOnClickText + '>';
+                //drawind input field/name field
+                listItemText += listItemTextText;
+                //drawing tag
+                listItemText+= '<span class="siimple-tag siimple-tag--' + statusColor + 
+                                ' siimple-tag--rounded">' + statusText + "</span>";
+            listItemText+= "</div>"
+            htmlText += listItemText;
+        }
+        //end of drawing antennas in for loop
+
+
+        /** drawing stuff under the antenna list **/
+        if(setupMode){
+            /** drawing antenna count input field **/
+            htmlText += '<br><label class="siimple-label"> Antenna Count</label>' +
+            '<input id="antSetupCount" type="number" min=1 max=8 class="siimple-input"'+
+            'onchange="setAntennaCount()" placeholder="' + jsonConfig.antennaCount + '">'
+        }
+        else{
+            /** drawing turnAllOff button **/
+            htmlText += '<div class="siimple-list-item" onClick="toggleAntenna(-1)"><p> turn all off </p></div>'
+        }
+        document.getElementById("antennaList").innerHTML = htmlText;
+    }
+
+    
 </script>
 </body>
 </html>
