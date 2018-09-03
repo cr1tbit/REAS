@@ -37,8 +37,12 @@ aREAS1.local/setAntenna?ant={0-16}  //0 - off, 1;16 - ant number
 The query for turning on multiple antenna configurations:
 aREAS1.local/multiAntennas?mul=xxxxxxxxxxxxxxxx //x = 0 or 1, 1;16 x'es
 
-[TODO]The query for custom commands
+The query for custom commands!
 aREAS1.local/?com={command} //for example "UHF" or "40M"
+
+Custom commands are attachable in setup() loop and can either
+access GPIO controlled by aREAS driver, or even implement it's own
+functionality (like controlling external bandpass filter).
 
 The device may be served directly from the browser window, but
 generally it's meant to be controlled by an external application.
@@ -57,7 +61,8 @@ Arduino:
 
 Testing/clients:
 - [ ] create python tests
-- [ ] create simple html5+js client
+- [x] create simple html5+js test client
+- [ ] create touch-enabled smartphone/tablet client
 
 Hardware:
 - [x] create SimpleSlowSerial library for sending data with baudrates
