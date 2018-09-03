@@ -23,16 +23,17 @@ AntController antController;
 //TODO: DHCP functionality
 */
 
-
-
-
-
+int freeRam () {
+  extern int __heap_start, *__brkval; 
+  int v; 
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
+}
 
 class aREAS_Handler{
 
     typedef struct{
-    String name;
-    int (*fPtr)(String);
+        String name;
+        int (*fPtr)(String);
     } simplefunMap;
     
     simplefunMap fMap[AREAS_MAX_FUN_NO];
@@ -47,8 +48,7 @@ class aREAS_Handler{
         for(int i=0;i<AREAS_MAX_FUN_NO; i++){
             if (fMap[i].fPtr != nullptr){
                 if(fMap[i].name == name){
-                    fMap[i].fPtr(param);
-                    return 0;
+                    return fMap[i].fPtr(param);
                 }
             }
         }
@@ -72,11 +72,37 @@ class aREAS_Handler{
                 return 0;
             }
         }
+        int test = 1;
         Serial.println(F("Warning - no emplty callback slots!"));
         return -1;
     }
 
-    void handleClient(EthernetClient client){
+    /*
+    int kbwTrace(const char *fmt, ...)
+    {
+        va_list args;
+        va_start(args, fmt);
+        return printf(fmt, args);
+    }*/
+
+
+    void writeResponse(EthernetClient* client, const char *response, boolean isValid = 1){
+        client->print(F("HTTP/1.1 "));
+        if (isValid){
+            client->println(F("200 OK"));
+        }
+        else{
+            client->println(F("404 NOT FOUND"));
+        }
+        client->println(F("Content-Type: text/plain"));
+        /** allow internal network javascript access **/
+        client->println(F("Access-Control-Allow-Origin: *"));
+        client->println();
+        /** Begin data return **/
+        client->println(response);
+    }
+
+    void handleClient(EthernetClient* client){
         Serial.println(F("new client\n\n"));
         // an http request ends with a blank line
         boolean currentLineIsBlank = true;
@@ -85,17 +111,15 @@ class aREAS_Handler{
 
         int charCounter = 0;
         const int charCounterMax = 64;//max request length
-        client.println(F("HTTP/1.1 200 OK"));
-        client.println(F("Content-Type: text/plain"));
-        client.println(F("Access-Control-Allow-Origin: *"));
-        client.println(); 
-        while (client.connected()) {
-            if (client.available()) {
-                char c = client.read();
+
+        while (client->connected()) {
+            if (client->available()) {
+                char c = client->read();
                 if (charCounter++ > charCounterMax){
-                    client.print(F("Request too long (over "));
-                    client.print(charCounterMax);
-                    client.println(F("characters)"));
+                    String errMsg = "Request too long (over ";
+                    errMsg += charCounterMax;
+                    errMsg += "characters)";
+                    writeResponse(client,errMsg.c_str(),false);
                     break;
                 }
                 Serial.write(c);
@@ -105,12 +129,12 @@ class aREAS_Handler{
                 // so you can send a reply
                 if ((c == ' ')&&(isRequest)) {
                     // send a standard http response header        
-                    client.println(param);
+                    client->println(param);
                     if(handleParam(param)==0){
-                        client.println(F("param OK"));
+                        writeResponse(client,"param OK");
                     }
                     else{
-                        client.println(F("invalid param"));
+                        writeResponse(client,"invalid param!",false);
                     }
                     break;
                 }
@@ -119,25 +143,31 @@ class aREAS_Handler{
                     param+=c;
                 }
 
+                /** start parsing parameter after "?" is found. **/
                 if(c == '?'){
                     isRequest = true;
                 }
 
+                /** detecting endOfLine ('\n') marks the end of interesting stuff in request. **/
                 if(c=='\n'){
-                    //client.println("Request not valid (no '?' found)\n"
-                    //                "valid syntax: <IPADDR>/?fun=parameters");
+                    writeResponse(client,
+                                "Request not valid (no '?' found)\n"
+                                "valid syntax: <IPADDR>/?fun=parameters",
+                                false);
                     break;
                 }
             }
         }
-        client.stop();
-        Serial.println("EOT");
+        Serial.println(F("free ram: "));
+        Serial.print(freeRam());
+        Serial.println(F(" bytes. EOT"));
+        client->stop();
     }
 
     int handleParam(String param){
         //valid syntax of an param:
-        //  param:XYZ=value...
-        //char no:012345678...
+        //  param:|X|Y|Z|=|v|a|l|u|e|...
+        //char no:|0|1|2|3|4|5|6|7|8|...
         const int maxParLen = 32;
         const int parNameLen = AREAS_MAX_PAR_LEN;
 
@@ -174,7 +204,6 @@ class aREAS_Handler{
         }
         //try to find function in function pointer array
         return runFunctionFromMap(parName,parVal);
-
     }
 };
 
