@@ -72,7 +72,6 @@ class aREAS_Handler{
                 return 0;
             }
         }
-        int test = 1;
         Serial.println(F("Warning - no emplty callback slots!"));
         return -1;
     }

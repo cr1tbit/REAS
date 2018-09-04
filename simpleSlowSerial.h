@@ -86,9 +86,10 @@ public:
             _s = this;
         }
         else{
-            Serial.println(
+            Serial.println(F(
                 "WARNING - second instance of SSSerial is being created!\n"
-                "THIS SHOULD NEVER HAPPEN!!");
+                "THIS SHOULD NEVER HAPPEN!!"
+                ));
         }
     }
 
