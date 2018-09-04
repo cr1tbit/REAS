@@ -39,7 +39,7 @@
                            size="10" 
                            id="ipAddr" 
                            value="192.168.2.200" 
-                           onchange="reqStrUpdate()"
+                           onchange="reqStrUpdate();setIP()"
                     >
                     <label class="siimple-label">/?</label>
                     <input type="text" 
@@ -146,6 +146,7 @@ Nothing (yet!)
     var req = "";
     var setupMode = false;
     var jsonConfig = {};
+    var maxAntCount = 8;
 
     /** webapp start and finish **/
 
@@ -189,6 +190,10 @@ Nothing (yet!)
         console.log("Json config loaded:\n" + JSON.stringify(jsonConfig,null,2));
     }
     
+    function setIP(){
+        jsonConfig.deviceIP = document.getElementById("ipAddr").value;
+    }
+
     function saveSettingsOnLocalStorage(){
         if(jsonConfig.localStorageEnabled == true){
             localStorage.setItem('jsonConfigText',JSON.stringify(jsonConfig,null,2))
@@ -205,7 +210,7 @@ Nothing (yet!)
             localStorageEnabled : false,
             singleAntenna : true,
             autoUpdate : false,
-            antennaCount : 8,
+            antennaCount : maxAntCount,
             antenna : []
         }
         for(var i = 0;i<defaultJsonConfig["antennaCount"];i++){
@@ -284,7 +289,7 @@ Nothing (yet!)
     
     function setAntennaCount(){
         var antNo = document.getElementById("antSetupCount").value
-        if (antNo>0||antNo<16){
+        if (antNo>0||antNo<maxAntCount){
             jsonConfig.antennaCount=antNo;
         }
     }
@@ -379,8 +384,6 @@ Nothing (yet!)
             var statusColor;
             var statusText;
 
-            
-
             /** setup tag name and color from jsonConfig **/
             if (jsonConfig.antenna[i].state == 'on'){
                 statusColor = "success"
@@ -431,7 +434,7 @@ Nothing (yet!)
         if(setupMode){
             /** drawing antenna count input field **/
             htmlText += '<br><label class="siimple-label"> Antenna Count</label>' +
-            '<input id="antSetupCount" type="number" min=1 max=8 class="siimple-input"'+
+            '<input id="antSetupCount" type="number" min=1 max='+ maxAntCount +' class="siimple-input"'+
             'onchange="setAntennaCount()" placeholder="' + jsonConfig.antennaCount + '">'
         }
         else{
