@@ -23,9 +23,10 @@ AntController antController;
 //TODO: DHCP functionality
 */
 
+/** this function comes from arduino help site **/
 int freeRam () {
   extern int __heap_start, *__brkval; 
-  int v; 
+  String v; 
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
 
@@ -33,7 +34,7 @@ class aREAS_Handler{
 
     typedef struct{
         String name;
-        int (*fPtr)(String);
+        String (*fPtr)(String);
     } simplefunMap;
     
     simplefunMap fMap[AREAS_MAX_FUN_NO];
@@ -44,15 +45,15 @@ class aREAS_Handler{
         clearFunMap();
     }
 
-    int runFunctionFromMap(String name, String param){
+    String runFunctionFromMap(String name, String param){
         for(int i=0;i<AREAS_MAX_FUN_NO; i++){
             if (fMap[i].fPtr != nullptr){
                 if(fMap[i].name == name){
-                    return fMap[i].fPtr(param);
+                    return "200 "+ fMap[i].fPtr(param);
                 }
             }
         }
-        return -1;
+        return "404 Function " + name + "not found.";
     }
 
     void clearFunMap(){
@@ -61,7 +62,7 @@ class aREAS_Handler{
         }
     }
 
-    int attachCallback(String name, int (*callback)(String)){
+    int attachCallback(String name, String (*callback)(String)){
         name = name.substring(0,AREAS_MAX_PAR_LEN);
         //find empty callback slot
         for (int i = 0;i<AREAS_MAX_FUN_NO; i++){
@@ -85,7 +86,18 @@ class aREAS_Handler{
     }*/
 
 
-    void writeResponse(EthernetClient* client, const char *response, boolean isValid = 1){
+    void writeResponse(EthernetClient* client, String response, boolean isValid = 1){
+        /** check if first 3 chars from response
+         * string contain an status number **/ 
+
+        int16_t statusNumber = response.substring(0,3).toInt();
+        if (statusNumber != 0){
+            if (statusNumber != 200 ){
+                //probably 404
+                isValid = false;
+            }
+        }
+        
         client->print(F("HTTP/1.1 "));
         if (isValid){
             client->println(F("200 OK"));
@@ -102,7 +114,7 @@ class aREAS_Handler{
     }
 
     void handleClient(EthernetClient* client){
-        Serial.println(F("new client\n\n"));
+        Serial.println(F("New client:"));
         // an http request ends with a blank line
         boolean currentLineIsBlank = true;
         String param = "";
@@ -118,7 +130,7 @@ class aREAS_Handler{
                     String errMsg = "Request too long (over ";
                     errMsg += charCounterMax;
                     errMsg += "characters)";
-                    writeResponse(client,errMsg.c_str(),false);
+                    writeResponse(client,errMsg,false);
                     break;
                 }
                 Serial.write(c);
@@ -128,13 +140,22 @@ class aREAS_Handler{
                 // so you can send a reply
                 if ((c == ' ')&&(isRequest)) {
                     // send a standard http response header        
+                    
+                    writeResponse(
+                        client,
+                        handleParam(param)
+                    );
+                    client->println("request parameter: ");
                     client->println(param);
+
+                    /*
                     if(handleParam(param)==0){
                         writeResponse(client,"param OK");
                     }
                     else{
                         writeResponse(client,"invalid param!",false);
                     }
+                    */
                     break;
                 }
                 
@@ -159,11 +180,11 @@ class aREAS_Handler{
         }
         Serial.println(F("free ram: "));
         Serial.print(freeRam());
-        Serial.println(F(" bytes. EOT"));
+        Serial.println(F(" bytes. EOT\n\n"));
         client->stop();
     }
 
-    int handleParam(String param){
+    String handleParam(String param){
         //valid syntax of an param:
         //  param:|X|Y|Z|=|v|a|l|u|e|...
         //char no:|0|1|2|3|4|5|6|7|8|...
@@ -188,18 +209,21 @@ class aREAS_Handler{
 
         //try methods embedded in aREAS object:
         if (parName=="sta"){
-            Serial.println(F("status OK."));
-            return 0;
+            String status = "200 OK\n";
+            status += antController.getOutputStatus();
+
+            Serial.println(status);
+            return status;
         }
 
         if (parName=="ant"){
             Serial.println(F("ant called..."));
-            return antController.setExclusiveFromString(parVal);
+            return "200 OK\n" + (String)antController.setExclusiveFromString(parVal);
         }
             
         if (parName=="mul"){
             Serial.println(F("mul called..."));
-            return antController.setMultiFtomString(parVal);
+            return "200 OK\n" + (String)antController.setMultiFtomString(parVal);
         }
         //try to find function in function pointer array
         return runFunctionFromMap(parName,parVal);

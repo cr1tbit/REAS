@@ -54,7 +54,7 @@ EthernetServer server(80);
 aREAS_Handler aHandler(8);
 /** custom functions **/
 
-int setFilterBankFromString(String s){
+String setFilterBankFromString(String s){
   int fltrNo = s.toInt();
   if ((fltrNo>0)&&(fltrNo<4)){
     Serial.print("activating fltr no ");
@@ -68,7 +68,7 @@ int setFilterBankFromString(String s){
   }
 }
 
-int set40M(String s){
+String set40M(String s){
   /** string may be ignored, command
    * "/?40M" (without "=sth") will trigger 
    * it anyway. **/
@@ -77,12 +77,12 @@ int set40M(String s){
    * in order to create his custom functions.
    * however it's probably better to give antenna 
    * their verbose name on API client. **/
-  return aHandler.antController.setExclusive(ANT_40M_NO);//No of 40M ant.
+  return (String)aHandler.antController.setExclusive(ANT_40M_NO);//No of 40M ant.
 }
 
-int setUHF(String s){
+String setUHF(String s){
   Serial.print("Activating antena for the UHF band");
-  return aHandler.antController.setExclusive(ANT_UHF_NO);//No of UHF ant.
+  return (String)aHandler.antController.setExclusive(ANT_UHF_NO);//No of UHF ant.
 }
 
 

@@ -29,27 +29,37 @@ What is REST API? It's the way to send request via http protocol, the same
 that's used in your browser adress bar. This video sums it up pretty well:
 https://www.youtube.com/watch?v=7YcW25PHnAA
 
-The project will implement 3 basic configurations:
+General driver's API implements these functions:
 
 The query for switching between single antennas:
-aREAS1.local/setAntenna?ant={0-16}  //0 - off, 1;16 - ant number
+aREAS1.local/?ant={0-16}  //0 - off, 1;16 - ant number
 
 The query for turning on multiple antenna configurations:
-aREAS1.local/multiAntennas?mul=xxxxxxxxxxxxxxxx //x = 0 or 1, 1;16 x'es
+aREAS1.local/?mul=xxxxxxxxxxxxxxxx //x = 0 or 1, 1;16 x'es
 
-The query for custom commands!
-aREAS1.local/?com={command} //for example "UHF" or "40M"
+Get current antenna config (and maybe more in the future)
+aREAS1.local/?sta
+
+Programmer familiar with Arduino IDE may also implement
+their own functionality, using "attachCallback()" method,
+as seen in example "Ethernet_custom". In this case the
+query is as follows:
+
+aREAS1.local/?com={command} //for example "?UHF" or "?flt=1"
 
 Custom commands are attachable in setup() loop and can either
 access GPIO controlled by aREAS driver, or even implement it's own
-functionality (like controlling external bandpass filter).
+functionality (like controlling external bandpass filter or 
+reading some analog value).
 
+
+##General usage
 The device may be served directly from the browser window, but
 generally it's meant to be controlled by an external application.
 
 In order to test the API, a simple client has been written in html+js. 
 Yes, javascript can access devices in LAN. I was suprised too. The client 
-can be found in /tests directory, you can give it a try under [this link](http://htmlpreview.github.io/?https://github.com/critBit95/aREAS/blob/master/tests/API_Tester.html).
+can be found in /tests directory, you can give it a try under [**this link**](http://htmlpreview.github.io/?https://github.com/critBit95/aREAS/blob/master/tests/API_Tester.html).
 
 ## TODO list:
 Arduino:

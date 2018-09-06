@@ -145,16 +145,21 @@ public:
         #endif //AREAS_OUTPUT_UART50HZ
 
         #ifdef AREAS_OUTPUT_DEBUG
-            Serial.print(F("setting ant values:"));
-            for(int i=0;i<antMaxCount;i++){
-                Serial.print(ant[i]);
-                Serial.print(" ");
-            }
+            Serial.print(F("setting ant values:\n"));
+            Serial.print(getOutputStatus());
             Serial.println("EOL");
          #endif //AREAS_OUTPUT_DEBUG
         return 0;
     }
 
+    String getOutputStatus(){
+        String status = "";
+        for(int i=0;i<antMaxCount;i++){
+                status += ant[i];
+                status += " ";
+            }
+        return status;
+    }
    
 };
 

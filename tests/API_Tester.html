@@ -308,11 +308,14 @@ Nothing (yet!)
         xmlHttp.onload = function (e) {
             if (xmlHttp.readyState === 4) {
                 if (xmlHttp.status === 200) {
-                    updateRespDisp("Response: \n" + xmlHttp.responseText);
+                    updateRespDisp("Response valid: \n" + xmlHttp.responseText);
                     drawDeviceStatus("Online");
                 } 
                 else {
-                    updateRespDisp("Response error: " +xmlHttp.statusText);
+                    updateRespDisp("Response error: " +
+                                    xmlHttp.statusText +
+                                    "\n Response: \n" + 
+                                    xmlHttp.responseText);
                     drawDeviceStatus("Error");
                 }
             }
