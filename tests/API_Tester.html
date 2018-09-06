@@ -108,11 +108,13 @@ Nothing (yet!)
                             <input type="checkbox" id="singleAntModeBox" onChange="setSingleAntennaMode()" checked>
                             <label for="singleAntModeBox"></label>
                         </div>
+                        <!--
                         <label class="siimple-label">Update status every 5s:</label>
                         <div class="siimple-checkbox">
                             <input type="checkbox" id="updateModeSwitch" checked>
                             <label for="updateModeSwitch"></label>
                         </div>
+                        -->
                         <div id="toggleSetupModeBut" class="siimple-btn siimple-btn--orange" 
                             onclick="toggleSetupMode()">
                             Enter setup mode
@@ -263,6 +265,10 @@ Nothing (yet!)
 
     /** Local area network and aREAS API functionality **/
 
+    function getRemoteAntennaStatus(){
+        
+    }
+
     function getApiRequestFromJsonConfig(){
         var request = "http://"+
                 document.getElementById('ipAddr').value +
@@ -311,6 +317,13 @@ Nothing (yet!)
                     updateRespDisp("Response valid: \n" + xmlHttp.responseText);
                     drawDeviceStatus("Online");
                 } 
+                else if (xmlHttp.status === 404) {
+                    updateRespDisp("Resource not found. Check if your query is valid: \n" +
+                                    param + 
+                                    "\n Response: \n" + 
+                                    xmlHttp.responseText);
+                    drawDeviceStatus("Online");
+                }
                 else {
                     updateRespDisp("Response error: " +
                                     xmlHttp.statusText +
@@ -326,12 +339,14 @@ Nothing (yet!)
             drawDeviceStatus("Offline");
         };
         xmlHttp.onerror = function (e) {
-            updateRespDisp("Error: " + xmlHttp.statusText);
+            updateRespDisp("Request Error: " + 
+                            xmlHttp.statusText +
+                            "\ncheck your internet status. This error may also be caused by some firewall" +
+                            " issues, please contact me at my github, as this client hasn't been tested eneough yet.");
             drawDeviceStatus("Error");
         };
         console.log("Starting query...");
         xmlHttp.send( null );
-        return false;
     }
 
 
