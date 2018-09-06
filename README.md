@@ -53,7 +53,7 @@ functionality (like controlling external bandpass filter or
 reading some analog value).
 
 
-##General usage
+## General usage
 The device may be served directly from the browser window, but
 generally it's meant to be controlled by an external application.
 
