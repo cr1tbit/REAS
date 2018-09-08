@@ -1,4 +1,4 @@
-#include <aREAS.h>
+#include <REAS.h>
 
 SSSerial s(3);
 

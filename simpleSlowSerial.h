@@ -1,10 +1,10 @@
 
 
-#ifndef AREAS_SSSERIAL
-#define AREAS_SSSERIAL
+#ifndef REAS_SSSERIAL
+#define REAS_SSSERIAL
 
 #define START_STOP_BIT_1DOT5 //enable 1.5 start and stop bit
-#define AREAS_SSSERIAL_BITGAP //1/4 gap between bits
+#define REAS_SSSERIAL_BITGAP //1/4 gap between bits
 
 
 class SSSerial;
@@ -123,11 +123,11 @@ public:
 
     /** this function will be called every 1ms **/
     void _interrupt(){
-        #ifdef AREAS_SSSERIAL_BITGAP
+        #ifdef REAS_SSSERIAL_BITGAP
         if(timeCounter == (timePeriod >> 2)){
             digitalWrite(outputPin,0);
         }
-        #endif //AREAS_SSSERIAL_BITGAP
+        #endif //REAS_SSSERIAL_BITGAP
         if(timeCounter >0){
             timeCounter--;
         }
@@ -185,4 +185,4 @@ SIGNAL(TIMER0_COMPA_vect){
     }
 }
 
-#endif //AREAS_SSSERIAL
+#endif //REAS_SSSERIAL

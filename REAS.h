@@ -1,27 +1,11 @@
 #include <UIPEthernet.h>
 #include <antController.h>
 
-#ifndef AREAS_LIB
-#define AREAS_LIB
+#ifndef REAS_LIB
+#define REAS_LIB
 
-#define AREAS_MAX_PAR_LEN 3
-#define AREAS_MAX_FUN_NO 10
-
-/*
-//int randomSeed;//for random MAC generation
-//TODO: ranomizing MAC address
-char mac[] = {
-    0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
-};
-//TODO: setting up custom IP address
-IPAddress ip(192, 168, 2, 200);
-
-EthernetServer server(80);
-
-AntController antController;
-
-//TODO: DHCP functionality
-*/
+#define REAS_MAX_PAR_LEN 3
+#define REAS_MAX_FUN_NO 10
 
 /** this function comes from arduino help site **/
 int freeRam () {
@@ -30,23 +14,24 @@ int freeRam () {
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
 
-class aREAS_Handler{
+/** Main object used to handle client requests **/
+class REAS_Handler{
 
     typedef struct{
         String name;
         String (*fPtr)(String);
     } simplefunMap;
     
-    simplefunMap fMap[AREAS_MAX_FUN_NO];
+    simplefunMap fMap[REAS_MAX_FUN_NO];
     public:    
     AntController antController;
 
-    aREAS_Handler(uint8_t antennaCount):antController(antennaCount){
+    REAS_Handler(uint8_t antennaCount):antController(antennaCount){
         clearFunMap();
     }
 
     String runFunctionFromMap(String name, String param){
-        for(int i=0;i<AREAS_MAX_FUN_NO; i++){
+        for(int i=0;i<REAS_MAX_FUN_NO; i++){
             if (fMap[i].fPtr != nullptr){
                 if(fMap[i].name == name){
                     return "200 "+ fMap[i].fPtr(param);
@@ -57,15 +42,15 @@ class aREAS_Handler{
     }
 
     void clearFunMap(){
-        for(int i=0;i<AREAS_MAX_FUN_NO; i++){
+        for(int i=0;i<REAS_MAX_FUN_NO; i++){
             fMap[i].fPtr = nullptr;
         }
     }
 
     int attachCallback(String name, String (*callback)(String)){
-        name = name.substring(0,AREAS_MAX_PAR_LEN);
+        name = name.substring(0,REAS_MAX_PAR_LEN);
         //find empty callback slot
-        for (int i = 0;i<AREAS_MAX_FUN_NO; i++){
+        for (int i = 0;i<REAS_MAX_FUN_NO; i++){
             if(fMap[i].fPtr == nullptr){
                 //attach stuff
                 fMap[i].name = name;
@@ -189,7 +174,7 @@ class aREAS_Handler{
         //  param:|X|Y|Z|=|v|a|l|u|e|...
         //char no:|0|1|2|3|4|5|6|7|8|...
         const int maxParLen = 32;
-        const int parNameLen = AREAS_MAX_PAR_LEN;
+        const int parNameLen = REAS_MAX_PAR_LEN;
 
         //get "XYZ"
         String parName = param.substring(0,parNameLen);
@@ -207,7 +192,7 @@ class aREAS_Handler{
         Serial.print(F("param val: "));
         Serial.println(parVal);
 
-        //try methods embedded in aREAS object:
+        //try methods embedded in REAS object:
         if (parName=="sta"){
             String status = "200 OK\n";
             status += antController.getOutputStatus();
@@ -230,4 +215,4 @@ class aREAS_Handler{
     }
 };
 
-#endif //AREAS_LIB
+#endif //REAS_LIB

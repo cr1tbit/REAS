@@ -1,17 +1,17 @@
 
 /**
- * Basic example of the aREAS library:
- * 1.initialize aREAS_Handler with (16)
+ * Basic example of the REAS library:
+ * 1.initialize REAS_Handler with (16)
  * 2.enjoy control over 16 antenna outputs
  *    via ethernet.
  */
 
 
 #include <UIPEthernet.h>
-#include <aREAS.h>
+#include <REAS.h>
 
 /** You might want to give unique MAC to every
- * aREAS controller in the network */
+ * REAS controller in the network */
 char mac[] = {
     0xDD, 0xDD, 0xDD, 0xDD, 0x15, 0x25
 };
@@ -20,7 +20,7 @@ IPAddress ip(192, 168, 2, 200);
 
 EthernetServer server(80);
 
-aREAS_Handler aHandler(16);
+REAS_Handler aHandler(16);
 
 
 void setup() {

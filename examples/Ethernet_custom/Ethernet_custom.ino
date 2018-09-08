@@ -1,14 +1,14 @@
 
 /**
  * This example shows how to attach custom
- * functions to your aREAS controller.
+ * functions to your REAS controller.
  * 
  * 1.Write your custom functions - they 
  *    need to:
  *    a) Take single String variable as parameter
  *    b) Return int value. 0 = OK, not 0 = Error
  * 
- * 2.initialize aREAS_Handler with less than
+ * 2.initialize REAS_Handler with less than
  *    16 outputs so there's some GPIO left 
  *    for custom functions.
  * 
@@ -21,11 +21,11 @@
  *      function. You can get it by preceding its
  *      name with "&" and ommiting "()"
  * 
- * 4.Enjoy aREAS controller executing your own
+ * 4.Enjoy REAS controller executing your own
  *    functions!
  * 
  * 
- * In this example we use aREAS controller to
+ * In this example we use REAS controller to
  * controll multiple antennas via Slow serial
  * and filter bank via a couple of GPIOs.
  * 
@@ -36,13 +36,13 @@
 
 
 #include <UIPEthernet.h>
-#include <aREAS.h>
+#include <REAS.h>
 
 #define ANT_40M_NO 1
 #define ANT_UHF_NO 2
 
 /** You might want to give unique MAC to every
- * aREAS controller in the network */
+ * REAS controller in the network */
 char mac[] = {
     0xDD, 0xDD, 0xDD, 0xDD, 0x15, 0x25
 };
@@ -51,7 +51,7 @@ IPAddress ip(192, 168, 2, 200);
 
 EthernetServer server(80);
 
-aREAS_Handler aHandler(8);
+REAS_Handler aHandler(8);
 /** custom functions **/
 
 String setFilterBankFromString(String s){

@@ -1,19 +1,19 @@
 #include <simpleSlowSerial.h>
 
-#ifndef AREAS_ANT_CTRL
-#define AREAS_ANT_CTRL
+#ifndef REAS_ANT_CTRL
+#define REAS_ANT_CTRL
 
 
 #define MAX_ANT_NO 16
 
 #if defined(__AVR_ATmega328P__)
-    #define AREAS_NANO
+    #define REAS_NANO
 #elif defined (ESP8266)
-    #define AREAS_ESP
+    #define REAS_ESP
 #endif
 
-#define AREAS_OUTPUT_DEBUG //every output change is logged to serial output
-#define AREAS_OUTPUT_UART50HZ //output is sent via slow UART port
+#define REAS_OUTPUT_DEBUG //every output change is logged to serial output
+#define REAS_OUTPUT_UART50HZ //output is sent via slow UART port
 
 class AntController {
     int antCount;
@@ -140,15 +140,15 @@ public:
             }
             bitMask >>= 1;
         }
-        #ifdef AREAS_OUTPUT_UART50HZ
+        #ifdef REAS_OUTPUT_UART50HZ
             serial50hz.send(antToChar());
-        #endif //AREAS_OUTPUT_UART50HZ
+        #endif //REAS_OUTPUT_UART50HZ
 
-        #ifdef AREAS_OUTPUT_DEBUG
+        #ifdef REAS_OUTPUT_DEBUG
             Serial.print(F("setting ant values:\n"));
             Serial.print(getOutputStatus());
             Serial.println("EOL");
-         #endif //AREAS_OUTPUT_DEBUG
+         #endif //REAS_OUTPUT_DEBUG
         return 0;
     }
 
@@ -163,4 +163,4 @@ public:
    
 };
 
-#endif //AREAS_ANT_CTRL
+#endif //REAS_ANT_CTRL
