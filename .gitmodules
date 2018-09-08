@@ -1,0 +1,3 @@
+[submodule "REAS_clients"]
+	path = REAS_clients
+	url = git@github.com:critBit95/REAS_clients.git
