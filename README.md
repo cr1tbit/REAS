@@ -59,7 +59,7 @@ generally it's meant to be controlled by an external application.
 
 In order to test the API, a simple client has been written in html+js. 
 Yes, javascript can access devices in LAN. I was suprised too. The client 
-can be found in /tests directory, you can give it a try under [**this link**](http://htmlpreview.github.io/?https://github.com/critBit95/REAS/blob/master/tests/API_Tester.html).
+can be found in /tests directory, you can give it a try under [**this link**](http://htmlpreview.github.io/?https://github.com/critBit95/REAS_clients/blob/master/API_Tester.html).
 
 ## TODO list:
 Arduino:
