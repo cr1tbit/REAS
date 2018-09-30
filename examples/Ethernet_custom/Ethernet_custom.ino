@@ -54,37 +54,6 @@ EthernetServer server(80);
 REAS_Handler aHandler(8);
 /** custom functions **/
 
-String setFilterBankFromString(String s){
-  int fltrNo = s.toInt();
-  if ((fltrNo>0)&&(fltrNo<4)){
-    Serial.print("activating fltr no ");
-    Serial.println(fltrNo);
-    //set some GPIO
-  } 
-  else{
-    Serial.print("wrong param ");
-    Serial.println(fltrNo);
-
-  }
-}
-
-String set40M(String s){
-  /** string may be ignored, command
-   * "/?40M" (without "=sth") will trigger 
-   * it anyway. **/
-  Serial.print("Activating antena for the 40M band");
-  /** an user may access antController object
-   * in order to create his custom functions.
-   * however it's probably better to give antenna 
-   * their verbose name on API client. **/
-  return (String)aHandler.antController.setExclusive(ANT_40M_NO);//No of 40M ant.
-}
-
-String setUHF(String s){
-  Serial.print("Activating antena for the UHF band");
-  return (String)aHandler.antController.setExclusive(ANT_UHF_NO);//No of UHF ant.
-}
-
 
 void setup() {
   // Open serial communications and wait for port to open:
@@ -99,9 +68,9 @@ void setup() {
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
 
-  aHandler.attachCallback("flt", &setFilterBankFromString);
-  aHandler.attachCallback("40M", &set40M);
-  aHandler.attachCallback("UHF", &setUHF);
+  //aHandler.attachCallback("flt", &setFilterBankFromString);
+  //aHandler.attachCallback("40M", &set40M);
+  //aHandler.attachCallback("UHF", &setUHF);
 }
 
 void loop() {

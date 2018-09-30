@@ -13,7 +13,17 @@ int freeRam () {
   String v; 
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
+/*
+int ramWatermark = 2000;
 
+int setRamWatermark(int mark){
+    ramWatermark = mark;
+}
+
+int resetRamWatermark(){
+    ramWatermark = 2000
+}
+*/
 /** Main object used to handle client requests **/
 class REAS_Handler{
 
@@ -38,7 +48,7 @@ class REAS_Handler{
                 }
             }
         }
-        return "404 Function " + name + "not found.";
+        return "404 Function " + name + " not found.";
     }
 
     void clearFunMap(){
@@ -96,6 +106,7 @@ class REAS_Handler{
         client->println();
         /** Begin data return **/
         client->println(response);
+        Serial.println(F("Response sent."));
     }
 
     void handleClient(EthernetClient* client){
